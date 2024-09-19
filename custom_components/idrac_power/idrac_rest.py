@@ -172,7 +172,7 @@ class IdracRest:
             _LOGGER.debug(f"Couldn't update {self.host} power status: {e}")
             new_status = None
 
-        if new_status != self.status:
+        if new_status != self.power_status:
             self.power_status = new_status
             for callback in self.callback_power_status:
                 callback(self.power_status)
