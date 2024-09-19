@@ -63,6 +63,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     async_add_entities([
         IdracStatusBinarySensor(hass, rest_client, device_info, f"{serial}_{name}_status",
                                 f"{name} status"
+                                ),
+        IdracPowerStatusBinarySensor(hass, rest_client, device_info, f"{serial}_{name}_power_status",
+                                f"{name} power status"
                                 )
     ])
 
