@@ -99,3 +99,36 @@ class IdracStatusBinarySensor(BinarySensorEntity):
         else:
             self._attr_available = False
         self.schedule_update_ha_state()
+
+class IdracPowerStatusBinarySensor(BinarySensorEntity):
+    """The iDRAC's current power status sensor entity."""
+
+    def __init__(self, hass, rest: IdracRest, device_info, unique_id, name):
+        self.hass = hass
+        self.rest = rest
+
+        self.entity_description = BinarySensorEntityDescription(
+            key='power_status',
+            name=name,
+            icon='mdi:power',
+            device_class=BinarySensorDeviceClass.RUNNING,
+        )
+
+        self._attr_device_info = device_info
+        self._attr_unique_id = unique_id
+        self._attr_has_entity_name = True
+
+        self.rest.register_callback_power_status(self.update_value)
+
+    @property
+    def name(self):
+        """Name of the entity."""
+        return "Server Power Status"
+
+    def update_value(self, status: bool | None):
+        if status:
+            self._attr_is_on = status
+            self._attr_available = True
+        else:
+            self._attr_available = False
+        self.schedule_update_ha_state()

@@ -50,10 +50,12 @@ class IdracRest:
 
         self.callback_thermals: list[Callable[[dict | None], None]] = []
         self.callback_status: list[Callable[[bool | None], None]] = []
+        self.callback_power_status: list[Callable[[bool | None], None]] = []
         self.callback_power_usage: list[Callable[[int | None], None]] = []
 
         self.thermal_values: dict = {}
         self.status: bool = False
+        self.power_status: bool = False
         self.power_usage: int = 0
 
     def get_device_info(self) -> dict | None:
@@ -113,6 +115,9 @@ class IdracRest:
     def register_callback_status(self, callback: Callable[[bool | None], None]) -> None:
         self.callback_status.append(callback)
 
+    def register_callback_power_status(self, callback: Callable[[bool | None], None]) -> None:
+        self.callback_power_status.append(callback)
+
     def register_callback_power_usage(self, callback: Callable[[int | None], None]) -> None:
         self.callback_power_usage.append(callback)
 
@@ -151,6 +156,27 @@ class IdracRest:
             self.status = new_status
             for callback in self.callback_status:
                 callback(self.status)
+
+    def update_power_status(self):
+        try:
+            result = self.get_path(drac_chassis_path)
+            handle_error(result)
+            status_values = result.json()
+
+            try:
+                new_status = status_values[JSON_POWERSTATE] == 'On'
+            except:
+                new_status = None
+
+        except (RequestException, RedfishConfig, CannotConnect) as e:
+            _LOGGER.debug(f"Couldn't update {self.host} power status: {e}")
+            new_status = None
+
+        if new_status != self.status:
+            self.power_status = new_status
+            for callback in self.callback_power_status:
+                callback(self.power_status)
+
 
     def update_power_usage(self):
         try:
@@ -236,6 +262,14 @@ class IdracMock(IdracRest):
             self.status = new_status
             for callback in self.callback_status:
                 callback(self.status)
+
+    def update_power_status(self):
+        new_status = True
+
+        if new_status != self.power_status:
+            self.power_status = new_status
+            for callback in self.callback_power_status:
+                callback(self.power_status)
 
     def update_power_usage(self):
         power_values = {

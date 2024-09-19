@@ -108,6 +108,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             _LOGGER.warning(f"Updating {name} status sensor failed:\n{e}")
 
         try:
+            await hass.async_add_executor_job(rest_client.update_power_status)
+        except Exception as e:
+            # ignore exceptions, just log the error
+            _LOGGER.warning(f"Updating {name} power status sensor failed:\n{e}")
+
+        try:
             await hass.async_add_executor_job(rest_client.update_power_usage)
         except Exception as e:
             # ignore exceptions, just log the error

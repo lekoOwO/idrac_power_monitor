@@ -21,5 +21,6 @@ JSON_FIRMWARE_VERSION = 'FirmwareVersion'
 JSON_POWER_CONSUMED_WATTS = 'PowerConsumedWatts'
 JSON_STATUS = "Status"
 JSON_STATUS_STATE = "State"
+JSON_POWERSTATE = "PowerState"
 
 SCAN_INTERVAL = timedelta(seconds=5)
