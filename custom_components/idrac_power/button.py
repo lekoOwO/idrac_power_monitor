@@ -101,5 +101,4 @@ class IdracRefreshButton(ButtonEntity):
         _LOGGER.info("Refreshing sensors manually")
         await self.hass.async_add_executor_job(self.rest.update_thermals)
         await self.hass.async_add_executor_job(self.rest.update_status)
-        await self.hass.async_add_executor_job(self.rest.update_power_status)
         await self.hass.async_add_executor_job(self.rest.update_power_usage)

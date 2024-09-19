@@ -148,32 +148,23 @@ class IdracRest:
             except:
                 new_status = None
 
+            try:
+                new_power_status = status_values[JSON_POWERSTATE] == 'On'
+            except:
+                new_power_status = None
+
         except (RequestException, RedfishConfig, CannotConnect) as e:
             _LOGGER.debug(f"Couldn't update {self.host} status: {e}")
             new_status = None
+            new_power_status = None
 
         if new_status != self.status:
             self.status = new_status
             for callback in self.callback_status:
                 callback(self.status)
-
-    def update_power_status(self):
-        try:
-            result = self.get_path(drac_chassis_path)
-            handle_error(result)
-            status_values = result.json()
-
-            try:
-                new_status = status_values[JSON_POWERSTATE] == 'On'
-            except:
-                new_status = None
-
-        except (RequestException, RedfishConfig, CannotConnect) as e:
-            _LOGGER.debug(f"Couldn't update {self.host} power status: {e}")
-            new_status = None
-
-        if new_status != self.power_status:
-            self.power_status = new_status
+        
+        if new_power_status != self.power_status:
+            self.power_status = new_power_status
             for callback in self.callback_power_status:
                 callback(self.power_status)
 
@@ -257,17 +248,15 @@ class IdracMock(IdracRest):
 
     def update_status(self):
         new_status = True
+        new_power_status = True
 
         if new_status != self.status:
             self.status = new_status
             for callback in self.callback_status:
                 callback(self.status)
-
-    def update_power_status(self):
-        new_status = True
-
-        if new_status != self.power_status:
-            self.power_status = new_status
+        
+        if new_power_status != self.power_status:
+            self.power_status = new_power_status
             for callback in self.callback_power_status:
                 callback(self.power_status)
 
